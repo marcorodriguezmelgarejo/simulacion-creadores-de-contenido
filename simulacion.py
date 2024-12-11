@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from random import random
-from abc import ABC as ClaseAbstracta, abstractmethod
 from scipy import stats
 import sys
 
@@ -39,6 +38,7 @@ class VariablesAuxiliares:
     compras = 0
     totalPropinas = 0
     arrepentidos = 0
+    contenidoSubidoEnUltimoMes: int = 0
     def imprimir(self):
         print(" --- VARIABLES AUXILIARES --- ")
         print(f"Sumatoria de dinero gastado: {self.sumatoriaDineroGastado}")
@@ -89,6 +89,16 @@ class Datos:
         random_value = -1
         while random_value < 0:
             random_value = int(stats.dgamma.rvs(dgamma, loc, scale, random_state=None))
+        return random_value
+    
+    def precioAceptableSuscripcion(self) -> Dinero:
+        a = 1.3744527645148987
+        c = 0.21986643848319853
+        loc = 9.999999999999998
+        scale = 0.4219069229308876
+        random_value = -1
+        while random_value < 0:
+            random_value = int(stats.gengamma.rvs(a, c, loc, scale, random_state=None))
         return random_value
 
 class TiempoActual:
@@ -152,6 +162,9 @@ def eventoCompra(estado: Estado, variablesAuxiliares: VariablesAuxiliares, tiemp
         [(0.7, suscripcion),
             (0.2, propina),
             (0.1, compraSolicitudExclusiva)])
+    if (tipoDeCompra == suscripcion and arrepentidoDeSuscribirse(variablesAuxiliares.contenidoSubidoEnUltimoMes, control.precioSuscripcion)):
+        variablesAuxiliares.arrepentidos += 1
+        return
     tipoDeCompra(control, estado, variablesAuxiliares, tiempoActual, tef)
 
 ### FUNCIONES AUXILIARES ###
@@ -173,7 +186,21 @@ def costoDeProduccion() -> Dinero:
          (0.4, 10)]) # Video: 40 por ciento de probabilidad, 10 dolares
 
 def arrepentido(dineroDisponible: Dinero, tiempoActual: TiempoActual) -> bool:
+    return arrepentidoPorNoSerTopCreator(dineroDisponible, tiempoActual)
+
+def arrepentidoPorNoSerTopCreator(dineroDisponible, tiempoActual) -> bool:
     return not topCreator(dineroDisponible, tiempoActual) and random() < 0.4
+
+def arrepentidoDeSuscribirse(contenidoSubidoUltimoMes: int, precioSuscripcion: Dinero) -> bool:
+    return arrepentidoPorPocoContenido(contenidoSubidoUltimoMes) or arrepentidoPorPrecioCaro(precioSuscripcion)
+
+def arrepentidoPorPrecioCaro(precioSuscripcion: Dinero) -> bool:
+    precioLimiteParaEseCliente = Datos().precioAceptableSuscripcion()
+    return precioSuscripcion > precioLimiteParaEseCliente # Si el precio que cobramos es mayor a lo que esta dispuesto a pagar, se arrepiente y no compra
+
+def arrepentidoPorPocoContenido(contenidoSubidoUltimoMes: int) -> bool:
+    # si subio 0 contenidos, probabilidad 1. Si subio 10 contenidos o mas, probabilidad 0. Establezco una función lineal entre esos dos puntos.
+    return eleccionAleatoriaBinaria(1 - min(contenidoSubidoUltimoMes, 10) / 10, True, False)
 
 def topCreator(dineroGanado: Dinero, tiempoActual: TiempoActual) -> bool:
     if tiempoActual.tiempo == 0:
@@ -192,6 +219,9 @@ def eleccionAleatoria(probabilidadesConOpciones):
         if r <= probabilidadAcumulada:
             return opcion
     return probabilidadesConOpciones[-1][1] # Retorna la ultima opcion (igual no deberia llegar a esta linea porque las probabilidades suman 1)
+
+def eleccionAleatoriaBinaria(probabilidad, valorSiExito, valorSiFracaso):
+    return eleccionAleatoria([(probabilidad, valorSiExito), (1 - probabilidad, valorSiFracaso)])
 
 def meses(n: int) -> Tiempo:
     return n * 30 * 24 * 60
