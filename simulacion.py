@@ -38,7 +38,7 @@ class VariablesAuxiliares:
     compras = 0
     totalPropinas = 0
     arrepentidos = 0
-    contenidoSubidoEnUltimoMes: int = 0
+    contenidoTotalSubido: int = 0
     def imprimir(self):
         print(" --- VARIABLES AUXILIARES --- ")
         print(f"Sumatoria de dinero gastado: {self.sumatoriaDineroGastado}")
@@ -133,6 +133,7 @@ def eventoSubidaSolicitudExclusiva(estado: Estado, variablesAuxiliares: Variable
 def eventoSubidaContenido(estado: Estado, variablesAuxiliares: VariablesAuxiliares, tiempoActual: TiempoActual, control: Control, tef: TablaDeEventosFuturos):
     tiempoActual.avanzarTiempoA(tef.tiempoProximoContenidoASubir)
     tef.tiempoProximoContenidoASubir = tiempoActual.tiempo + control.intervaloEntreSubidas
+    variablesAuxiliares.contenidoTotalSubido += 1
     costoProd = costoDeProduccion()
     gastarDinero(costoProd, estado, variablesAuxiliares)
 
@@ -162,7 +163,7 @@ def eventoCompra(estado: Estado, variablesAuxiliares: VariablesAuxiliares, tiemp
         [(0.7, suscripcion),
             (0.2, propina),
             (0.1, compraSolicitudExclusiva)])
-    if (tipoDeCompra == suscripcion and arrepentidoDeSuscribirse(variablesAuxiliares.contenidoSubidoEnUltimoMes, control.precioSuscripcion)):
+    if (tipoDeCompra == suscripcion and arrepentidoDeSuscribirse(variablesAuxiliares.contenidoTotalSubido, control.precioSuscripcion, tiempoActual.tiempo)):
         variablesAuxiliares.arrepentidos += 1
         return
     tipoDeCompra(control, estado, variablesAuxiliares, tiempoActual, tef)
@@ -191,16 +192,16 @@ def arrepentido(dineroDisponible: Dinero, tiempoActual: TiempoActual) -> bool:
 def arrepentidoPorNoSerTopCreator(dineroDisponible, tiempoActual) -> bool:
     return not topCreator(dineroDisponible, tiempoActual) and random() < 0.4
 
-def arrepentidoDeSuscribirse(contenidoSubidoUltimoMes: int, precioSuscripcion: Dinero) -> bool:
-    return arrepentidoPorPocoContenido(contenidoSubidoUltimoMes) or arrepentidoPorPrecioCaro(precioSuscripcion)
+def arrepentidoDeSuscribirse(contenidoTotalSubido: int, precioSuscripcion: Dinero, tiempoActual: Tiempo) -> bool:
+    return tiempoActual != 0 and arrepentidoPorPocoContenido(contenidoTotalSubido / (tiempoActual * 60 * 24)) or arrepentidoPorPrecioCaro(precioSuscripcion)
 
 def arrepentidoPorPrecioCaro(precioSuscripcion: Dinero) -> bool:
     precioLimiteParaEseCliente = Datos().precioAceptableSuscripcion()
     return precioSuscripcion > precioLimiteParaEseCliente # Si el precio que cobramos es mayor a lo que esta dispuesto a pagar, se arrepiente y no compra
 
-def arrepentidoPorPocoContenido(contenidoSubidoUltimoMes: int) -> bool:
+def arrepentidoPorPocoContenido(contenidoPromedioPorDia: float) -> bool:
     # si subio 0 contenidos, probabilidad 1. Si subio 10 contenidos o mas, probabilidad 0. Establezco una función lineal entre esos dos puntos.
-    return eleccionAleatoriaBinaria(1 - min(contenidoSubidoUltimoMes, 10) / 10, True, False)
+    return eleccionAleatoriaBinaria(1 - min(contenidoPromedioPorDia, 10) / 10, True, False)
 
 def topCreator(dineroGanado: Dinero, tiempoActual: TiempoActual) -> bool:
     if tiempoActual.tiempo == 0:
@@ -241,3 +242,24 @@ def simulacion(tiempoFinal: Tiempo, intervaloEntreSubidas: Tiempo, precioSuscrip
 def simularEImprimirResultados(tiempoFinal: Tiempo, intervaloEntreSubidas: Tiempo, precioSuscripcion: Dinero):
     Control(intervaloEntreSubidas, precioSuscripcion).imprimir()
     simulacion(tiempoFinal, intervaloEntreSubidas, precioSuscripcion).imprimir()
+
+def simularVariasVeces(meses):
+  simulaciones = [simulacion(tiempoFinal=meses(meses), intervaloEntreSubidas=60 * 2, precioSuscripcion=5) for i in range(5)]
+  print("rentabilidad")
+  for sim in simulaciones:
+      print(sim.rentabilidad)
+  print("engagement")
+  for sim in simulaciones:
+      print(sim.engagement)
+  print("porcentaje de propinas")
+  for sim in simulaciones:
+      print(sim.porcentajeDePropinas)
+
+  print("variabilidad rentabilidad")
+  print(max(simulaciones, key = lambda x: x.rentabilidad).rentabilidad - min(simulaciones, key = lambda x: x.rentabilidad).rentabilidad)
+
+  print("variabilidad engagement")
+  print(max(simulaciones, key = lambda x: x.engagement).engagement - min(simulaciones, key = lambda x: x.engagement).engagement)
+
+  print("variabilidad porcentaje de propinas")
+  print(max(simulaciones, key = lambda x: x.porcentajeDePropinas).porcentajeDePropinas - min(simulaciones, key = lambda x: x.porcentajeDePropinas).porcentajeDePropinas)
