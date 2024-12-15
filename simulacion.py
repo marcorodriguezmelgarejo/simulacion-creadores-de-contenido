@@ -36,6 +36,7 @@ class Control:
 class VariablesAuxiliares:
     sumatoriaDineroGastado = 0
     compras = 0
+    totalPropinas = 0
     arrepentidos = 0
     contenidoTotalSubido: int = 0
     def imprimir(self):
@@ -43,31 +44,35 @@ class VariablesAuxiliares:
         print(f"Sumatoria de dinero gastado: {self.sumatoriaDineroGastado}")
         print(f"Cantidad de compras: {self.compras}")
         print(f"Cantidad de arrepentidos: {self.arrepentidos}")
+        print(f"Total de propinas: {self.totalPropinas}")
         print("\n")
 
 @dataclass
 class Resultados:
     gananciasAnuales: float
     engagement: float
+    porcentajeDePropinas: float
     costoDeProduccionAnual: float
 
     def __init__(self, estado: Estado, variablesAuxiliares: VariablesAuxiliares, tiempoFinal: Tiempo):
         self.costoDeProduccionAnual = variablesAuxiliares.sumatoriaDineroGastado / (tiempoFinal / 60 / 24 / 30 / 12)
         self.gananciasAnuales = (dineroGanado(estado, variablesAuxiliares) - variablesAuxiliares.sumatoriaDineroGastado) / (tiempoFinal / 60 / 24 / 30 / 12)
+        self.porcentajeDePropinas = 100 * variablesAuxiliares.totalPropinas / dineroGanado(estado, variablesAuxiliares) if dineroGanado(estado, variablesAuxiliares) != 0 else 0
         self.engagement = (variablesAuxiliares.compras - variablesAuxiliares.arrepentidos) * 100 / variablesAuxiliares.compras if variablesAuxiliares.compras != 0 else 0
 
     def imprimirEnVariasLineas(self):
         print(" --- RESULTADOS --- ")
         print(f"Ganancias anuales: {self.gananciasAnuales}") # lo más importante que queremos maximizar
+        print(f"Porcentaje de propinas en los ingresos totales: {self.porcentajeDePropinas}%")
         print(f"Engagement: {self.engagement}%") # también es importante maximizar, es un indicador más a largo plazo
         print(f"Costo de Produccion Anual: {self.costoDeProduccionAnual}")
         print("\n")
 
     def imprimir(self):
-        print(f"Ganancias anuales: {self.gananciasAnuales}, Engagement: {self.engagement}, Costo de Produccion Anual: {self.costoDeProduccionAnual}")
+        print(f"Ganancias anuales: {self.gananciasAnuales}, Porcentaje de propinas: {self.porcentajeDePropinas}, Engagement: {self.engagement}, Costo de Produccion Anual: {self.costoDeProduccionAnual}")
     
     def imprimirSinCostoDeProduccionAnual(self):
-        print(f"Ganancias anuales: {self.gananciasAnuales}, Engagement: {self.engagement}")
+        print(f"Ganancias anuales: {self.gananciasAnuales}, Porcentaje de propinas: {self.porcentajeDePropinas}, Engagement: {self.engagement}")
 
 @dataclass
 class SalidaSimulacion:
@@ -144,6 +149,7 @@ def suscripcion(control: Control, estado: Estado, variablesAuxiliares: Variables
 def propina(control: Control, estado: Estado, variablesAuxiliares: VariablesAuxiliares, tiempoActual: TiempoActual, tef: TablaDeEventosFuturos):
     montoPropina = Datos().montoPropina()
     ganarDinero(montoPropina, estado)
+    variablesAuxiliares.totalPropinas += montoPropina
 
 def compraSolicitudExclusiva( control: Control, estado: Estado, variablesAuxiliares: VariablesAuxiliares, tiempoActual: TiempoActual, tef: TablaDeEventosFuturos):
     estado.cantidadSolicitudesExclusivasEnCola += 1
@@ -257,9 +263,15 @@ def simularVariasVeces(meses):
   print("engagement")
   for sim in simulaciones:
       print(sim.engagement)
+  print("porcentaje de propinas")
+  for sim in simulaciones:
+      print(sim.porcentajeDePropinas)
 
   print("variabilidad rentabilidad")
   print(max(simulaciones, key = lambda x: x.gananciasAnuales).gananciasAnuales - min(simulaciones, key = lambda x: x.gananciasAnuales).gananciasAnuales)
 
   print("variabilidad engagement")
   print(max(simulaciones, key = lambda x: x.engagement).engagement - min(simulaciones, key = lambda x: x.engagement).engagement)
+
+  print("variabilidad porcentaje de propinas")
+  print(max(simulaciones, key = lambda x: x.porcentajeDePropinas).porcentajeDePropinas - min(simulaciones, key = lambda x: x.porcentajeDePropinas).porcentajeDePropinas)
