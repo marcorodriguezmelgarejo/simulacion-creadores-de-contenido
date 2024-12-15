@@ -209,8 +209,8 @@ def arrepentidoPorPocoContenido(contenidoTotalSubido: int, tiempoActual: Tiempo)
 def topCreator(dineroGanado: Dinero, tiempoActual: TiempoActual) -> bool:
     if tiempoActual.tiempo == 0:
         return False
-    dineroPromedioPorMes = dineroGanado / ( tiempoActual.tiempo / (30 * 24 * 60) )
-    return dineroPromedioPorMes > 60000
+    gananciaPromedioPorMes = dineroGanado / ( tiempoActual.tiempo / 60 / 24 / 30 / 12 )
+    return gananciaPromedioPorMes > 100_000
 
 def eleccionAleatoria(probabilidadesConOpciones):
     sumaProbabilidades = sum(probabilidad for probabilidad, opcion in probabilidadesConOpciones)
