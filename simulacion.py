@@ -62,17 +62,17 @@ class Resultados:
 
     def imprimirEnVariasLineas(self):
         print(" --- RESULTADOS --- ")
-        print(f"Ganancias anuales: {self.gananciasAnuales}") # lo más importante que queremos maximizar
-        print(f"Porcentaje de propinas en los ingresos totales: {self.porcentajeDePropinas}%")
-        print(f"Engagement: {self.engagement}%") # también es importante maximizar, es un indicador más a largo plazo
-        print(f"Costo de Produccion Anual: {self.costoDeProduccionAnual}")
+        print(f"Ganancias anuales: {self.gananciasAnuales:.2f}") # lo más importante que queremos maximizar
+        print(f"Porcentaje de propinas en los ingresos totales: {self.porcentajeDePropinas:.2f}%")
+        print(f"Engagement: {self.engagement:.2f}%") # también es importante maximizar, es un indicador más a largo plazo
+        print(f"Costo de Produccion Anual: {self.costoDeProduccionAnual:.2f}")
         print("\n")
 
     def imprimir(self):
-        print(f"Ganancias anuales: {self.gananciasAnuales}, Porcentaje de propinas: {self.porcentajeDePropinas}, Engagement: {self.engagement}, Costo de Produccion Anual: {self.costoDeProduccionAnual}")
+        print(f"Ganancias anuales: {self.gananciasAnuales:.2f}, Porcentaje de propinas: {self.porcentajeDePropinas:.2f}%, Engagement: {self.engagement:.2f}%, Costo de Produccion Anual: {self.costoDeProduccionAnual:.2f}")
     
     def imprimirSinCostoDeProduccionAnual(self):
-        print(f"Ganancias anuales: {self.gananciasAnuales}, Porcentaje de propinas: {self.porcentajeDePropinas}, Engagement: {self.engagement}")
+        print(f"Ganancias anuales: {self.gananciasAnuales:.2f}, Porcentaje de propinas: {self.porcentajeDePropinas:.2f}%, Engagement: {self.engagement:.2f}%")
 
 @dataclass
 class SalidaSimulacion:
