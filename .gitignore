@@ -164,3 +164,4 @@ cython_debug/
 # VSCODE
 .vscode/
 fdp-precio-aceptable-suscripcion-alternativa.py
+data/
