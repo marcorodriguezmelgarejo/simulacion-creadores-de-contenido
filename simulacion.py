@@ -279,8 +279,27 @@ def simularVariasVeces(meses):
   print("variabilidad porcentaje de propinas")
   print(max(simulaciones, key = lambda x: x.porcentajeDePropinas).porcentajeDePropinas - min(simulaciones, key = lambda x: x.porcentajeDePropinas).porcentajeDePropinas)
 
+# --- EJECUCION DE LA SIMULACION - COPIADO DEL GOOGLE COLLAB --- #
+
+def simularVariasVecesConDistintosTiempos():
+    # Ejecuto varias veces la simulación con distintos tiempos finales, para ver qué tiempo final es suficiente para tener resultados 
+    # consistentes, sin aumentar demasiado el tiempo de procesamiento.
+    simularVariasVeces(1)
+    simularVariasVeces(30)
+    simularVariasVeces(60)
+    simularVariasVeces(120)
+    # Conclusión: es suficiente ejecutar la simulación con un tiempo final de 30 meses.
+
 def ejecucionesSimulacion():
-    # Varío el intervalo entre subidas, manteniendo el precio de suscripción fijo en 5 dólares
+    # Probamos ejecutar con distintos valores de las variables de control. Variamos individualmente las dos variables, para encontrar el valor óptimo de ambas.
+
+    # --- Varío el intervalo entre subidas, manteniendo el precio de suscripción fijo en 5 dólares ---
+    # Buscamos el mejor intervalo entre subidas, dejando fijo el parámetro del precio de la suscripción, y analizando cómo varían los resultados.
+    # El mejor valor para el intervalo entre subidas es 3 días. Al igual que 1 y 2 días, este otorga un engagement cercano al 100 por ciento, 
+    # y ganancias anuales cercanas a los 200 mil dólares. Pero, a diferencia de los otros dos, disminuye el costo de producción anual a los 
+    # 1450 dólares. Esto hace que, si analizamos la mejoría en estos 3 resultados, el intervalo entre subidas de 3 días sea el valor óptimo.
+    # Para el análisis de este parámetro, no consideramos la variación en el porcentaje de propinas en los ingresos totales, ya que no es un 
+    # resultado que se vea afectado significativamente por el mismo.
     print("1 hora")
     simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=60, precioSuscripcion=5).imprimir()
     print("1 día")
@@ -296,7 +315,22 @@ def ejecucionesSimulacion():
     print("15 días")
     simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(15), precioSuscripcion=5).imprimir()
 
-    # Varío el precio de la suscripción, manteniendo el intervalo entre subidas fijo en 3 días
+    #  --- Varío el precio de la suscripción, manteniendo el intervalo entre subidas fijo en 3 días ---
+    # Para buscar el mejor valor posible de esta variable, vamos a intentar, principalmente, maximizar las ganancias anuales. Como objetivo 
+    # secundario, también queremos disminuir al mínimo el porcentaje de propinas en los ingresos totales. Reducir este valor es positivo para
+    # los creadores de contenido, porque los hace menos dependientes de las variaciones propias de este tipo de ingreso. Por otro lado, al 
+    # parámetro del Engagement no le vamos a dar tanta importancia en este análisis, porque es natural que al aumentar el precio de la 
+    # suscripción, ciertos clientes prefieran no contratar la misma. Sin embargo, si el precio elegido es el correcto, esta disminución en 
+    # las ventas se ve compensada por un aumento en la ganancia correcta. Nuestro objetivo al ajustar esta variable es buscar el punto medio 
+    # adecuado que aumenta nuestras ganancias por venta, sin afectar demasiado las ventas totales, manteniendo al máximo posible las ganancias. 
+    # Por último, el resultado del costo de producción debe ser ingnorado en este análisis, ya que no es afectado por el precio que eligamos. 
+    # Las variaciones en ese resultado, son en este caso propias de la aleatoriedad de la simulación realizada.
+    # De los casos planteados, los que otorgan mayores ganancias son los que tienen precios de suscripción de 20 y 22 dólares. Estos dos son
+    # muy similares en cuanto a ganancias. Lo que sí varía considerablemente, es el Engagement, que es mayor cuando el precio es de 20 dólares.
+    # Es por eso que vamos a elegir como mejor el precio de 20 dólares, ya que mejora el Engagement manteniendo ganancias similares. Esto le 
+    # permite al creador de contenido tener una mayor base de clientes, lo que aporta más estabilidad en sus ingresos.
+    # Si se quisiera seguir analizando más en detalle, se podrían probar todos los valores cercanos a 20, hasta la precisión del centavo, con 
+    # tiempos de ejecución de simulación mayores. Esto permitiría afinar aún más el valor, encontrando el precio ideal.
     print("5 dólares")
     simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(3), precioSuscripcion=5).imprimir() 
     print("10 dólares")
@@ -317,7 +351,7 @@ def ejecucionesSimulacion():
     print("50 dólares")
     simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(3), precioSuscripcion=50).imprimir()
 
-    # Estudio combinaciones de los valores
+    # --- Estudio combinaciones de los valores ---
     # Debería ser el mejor
     print("3 días y 20 dólares")
     simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(3), precioSuscripcion=20).imprimir()
@@ -338,7 +372,6 @@ def ejecucionesSimulacion():
     simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(4), precioSuscripcion=22).imprimir()
     print("2 días y 10 dólares")
     simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(2), precioSuscripcion=10).imprimir()
-
     # Lejanos al mejor resultado, muy extremos para arriba y para abajo
     print("Lejanos al mejor resultado")
     print("30 días y 1 dólar")
