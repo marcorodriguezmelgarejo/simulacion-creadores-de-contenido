@@ -69,10 +69,10 @@ class Resultados:
         print("\n")
 
     def imprimir(self):
-        print(f"Ganancias anuales: {self.gananciasAnuales:.2f}, Porcentaje de propinas: {self.porcentajeDePropinas:.2f}%, Engagement: {self.engagement:.2f}%, Costo de Produccion Anual: {self.costoDeProduccionAnual:.2f}")
+        print(f"Ganancias anuales: {self.gananciasAnuales:.2f}, Porcentaje de propinas en los ingresos: {self.porcentajeDePropinas:.2f}%, Engagement: {self.engagement:.2f}%, Costo de Produccion Anual: {self.costoDeProduccionAnual:.2f}")
     
     def imprimirSinCostoDeProduccionAnual(self):
-        print(f"Ganancias anuales: {self.gananciasAnuales:.2f}, Porcentaje de propinas: {self.porcentajeDePropinas:.2f}%, Engagement: {self.engagement:.2f}%")
+        print(f"Ganancias anuales: {self.gananciasAnuales:.2f}, Porcentaje de propinas en los ingresos: {self.porcentajeDePropinas:.2f}%, Engagement: {self.engagement:.2f}%")
 
 @dataclass
 class SalidaSimulacion:
@@ -233,8 +233,11 @@ def eleccionAleatoria(probabilidadesConOpciones):
 def eleccionAleatoriaBinaria(probabilidad, valorSiExito, valorSiFracaso):
     return eleccionAleatoria([(probabilidad, valorSiExito), (1 - probabilidad, valorSiFracaso)])
 
+def dias(n: int) -> Tiempo:
+    return n * 24 * 60
+
 def meses(n: int) -> Tiempo:
-    return n * 30 * 24 * 60
+    return dias(30) * n
 
 def anios(n: int) -> Tiempo:
     return meses(12) * n
@@ -275,3 +278,70 @@ def simularVariasVeces(meses):
 
   print("variabilidad porcentaje de propinas")
   print(max(simulaciones, key = lambda x: x.porcentajeDePropinas).porcentajeDePropinas - min(simulaciones, key = lambda x: x.porcentajeDePropinas).porcentajeDePropinas)
+
+def ejecucionesSimulacion():
+    # Varío el intervalo entre subidas, manteniendo el precio de suscripción fijo en 5 dólares
+    print("1 hora")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=60, precioSuscripcion=5).imprimir()
+    print("1 día")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(1), precioSuscripcion=5).imprimir() 
+    print("2 días")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(2), precioSuscripcion=5).imprimir()
+    print("3 días") # -> MEJOR VALOR
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(3), precioSuscripcion=5).imprimir()
+    print("4 días")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(4), precioSuscripcion=5).imprimir()
+    print("7 días")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(7), precioSuscripcion=5).imprimir()
+    print("15 días")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(15), precioSuscripcion=5).imprimir()
+
+    # Varío el precio de la suscripción, manteniendo el intervalo entre subidas fijo en 3 días
+    print("5 dólares")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(3), precioSuscripcion=5).imprimir() 
+    print("10 dólares")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(3), precioSuscripcion=10).imprimir()
+    print("20 dólares") # -> MEJOR VALOR
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(3), precioSuscripcion=20).imprimir()
+    # No incluyo en el análisis por ser muy parecido a 22 dólares. Si se quisiera ver más en detalle cuál es el mejor, se podría ejecutar la simulación con un mayor tiempo final.
+    # print("21 dólares")
+    # simulacion(tiempoFinal=meses(90), intervaloEntreSubidas=dias(3), precioSuscripcion=21).imprimir() 
+    print("22 dólares")
+    simulacion(tiempoFinal=meses(90), intervaloEntreSubidas=dias(3), precioSuscripcion=22).imprimir()
+    # print("23 dólares")
+    # simulacion(tiempoFinal=meses(90), intervaloEntreSubidas=dias(3), precioSuscripcion=23).imprimir()
+    # print("24 dólares")
+    # simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(3), precioSuscripcion=24).imprimir()
+    print("25 dólares")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(3), precioSuscripcion=25).imprimir()
+    print("50 dólares")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(3), precioSuscripcion=50).imprimir()
+
+    # Estudio combinaciones de los valores
+    # Debería ser el mejor
+    print("3 días y 20 dólares")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(3), precioSuscripcion=20).imprimir()
+    # Cercanos al mejor resultado
+    print("Cercanos al mejor resultado")
+    print("Variando el precio de la suscripción")
+    print("3 días y 22 dólares")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(3), precioSuscripcion=22).imprimir()
+    print("3 días y 10 dólares")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(3), precioSuscripcion=10).imprimir()
+    print("Variando el intervalo entre subidas")
+    print("4 días y 20 dólares")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(4), precioSuscripcion=20).imprimir()
+    print("2 días y 20 dólares")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(2), precioSuscripcion=20).imprimir()
+    print("Variando ambos")
+    print("4 días y 22 dólares")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(4), precioSuscripcion=22).imprimir()
+    print("2 días y 10 dólares")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(2), precioSuscripcion=10).imprimir()
+
+    # Lejanos al mejor resultado, muy extremos para arriba y para abajo
+    print("Lejanos al mejor resultado")
+    print("30 días y 1 dólar")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=dias(30), precioSuscripcion=1).imprimir()
+    print("1 hora y 50 dólares")
+    simulacion(tiempoFinal=meses(30), intervaloEntreSubidas=60, precioSuscripcion=50).imprimir()
